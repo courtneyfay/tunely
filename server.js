@@ -54,7 +54,6 @@ app.get('/api/albums', function album_index(req, res){
 });
 
 app.post('/api/albums', function album_create(req, res) {
-  // console.log(req.body);
   req.body.genres = req.body.genres.split(',');
   db.Album.create({
     name: req.body.name, 
@@ -69,6 +68,24 @@ app.post('/api/albums', function album_create(req, res) {
   });
 });
 
+app.post('/api/albums/:album_id/songs', function album_add_song(req, res) {
+  db.Album.findOne({_id: req.params.album_id}, function(err, album) {
+    if (err) { console.log('error', err); }
+    let song = new db.Song(req.body);
+    album.songs.push(song);
+    album.save(function(err, savedAlbum) {
+      if (err) { console.log('error', err); }
+      console.log('album with new song saved:', savedAlbum);
+      res.json(song);
+    });
+  });
+});
+
+app.get('/api/albums/:id', function album_show(req, res) {
+  db.Album.findOne({_id: req.params.id}, function(err, album) {
+    res.json(album);
+  });
+});
 
 /**********
  * SERVER *
